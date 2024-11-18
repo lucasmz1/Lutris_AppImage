@@ -8,7 +8,8 @@ AppDir:
     name: lutris
     icon: icon.svg
     version: latest
-    exec: usr/games/lutris
+    exec: usr/bin/python3
+    exec_args: $APPDIR/usr/games/lutris $@
 
   apt:
     arch: amd64
@@ -20,6 +21,7 @@ AppDir:
     - sourceline: 'deb [trusted=yes] http://archive.ubuntu.com/ubuntu/ xenial-proposed main restricted universe multiverse' 
     - sourceline: 'deb [trusted=yes] http://archive.ubuntu.com/ubuntu/ xenial-backports main restricted universe multiverse'
     include:
+    - librsvg2-2
     - lutris
     - cabextract
     - curl
