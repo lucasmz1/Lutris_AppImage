@@ -1,0 +1,74 @@
+version: 1
+script:
+  - rm -rf $TARGET_APPDIR || true
+
+AppDir:
+  app_info:
+    id: lutris
+    name: lutris
+    icon: icon.svg
+    version: latest
+    exec: usr/games/lutris
+
+  apt:
+    arch: amd64
+    sources:
+    - sourceline: 'deb [trusted=yes] https://ppa.launchpadcontent.net/lutris-team/lutris/ubuntu jammy main'
+    - sourceline: 'deb [trusted=yes] http://archive.ubuntu.com/ubuntu/ jammy main restricted universe multiverse'
+    - sourceline: 'deb [trusted=yes] http://archive.ubuntu.com/ubuntu/ xenial-security main restricted universe multiverse' 
+    - sourceline: 'deb [trusted=yes] http://archive.ubuntu.com/ubuntu/ xenial-updates main restricted universe multiverse'
+    - sourceline: 'deb [trusted=yes] http://archive.ubuntu.com/ubuntu/ xenial-proposed main restricted universe multiverse' 
+    - sourceline: 'deb [trusted=yes] http://archive.ubuntu.com/ubuntu/ xenial-backports main restricted universe multiverse'
+    include:
+    - lutris
+    - cabextract
+    - curl
+    - fluid-soundfont-gs
+    - gir1.2-gnomedesktop-3.0
+    - gir1.2-gtk-3.0
+    - gir1.2-notify-0.7
+    - gir1.2-webkit2-4.0
+    - mesa-utils
+    - p7zip
+    - psmisc
+    - python3-dbus
+    - python3-distro
+    - python3-gi
+    - python3-lxml
+    - python3-magic
+    - python3-pil
+    - python3-requests
+    - python3-setproctitle
+    - python3-yaml
+    - python3
+    - unzip
+    - x11-xserver-utils
+    
+  files:
+    exclude:
+      - usr/lib/x86_64-linux-gnu/gconv
+      - usr/share/man
+      - usr/share/doc/*/README.*
+      - usr/share/doc/*/changelog.*
+      - usr/share/doc/*/NEWS.*
+      - usr/share/doc/*/TODO.*
+      - usr/share/metainfo/org.kde.kcalc.appdata.xml
+  test:
+    debian:
+      image: appimagecrafters/tests-env:debian-stable
+      command: "dbus-launch ./AppRun"
+    centos:
+      image: appimagecrafters/tests-env:centos-7
+      command: "dbus-launch ./AppRun"
+    arch:
+      image: appimagecrafters/tests-env:archlinux-latest
+      command: "dbus-launch ./AppRun"
+    fedora:
+      image: appimagecrafters/tests-env:fedora-30
+      command: "dbus-launch ./AppRun"
+    ubuntu:
+      image: appimagecrafters/tests-env:ubuntu-xenial
+      command: "dbus-launch ./AppRun"
+
+AppImage:
+  arch: x86_64
