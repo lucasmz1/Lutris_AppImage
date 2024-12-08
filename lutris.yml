@@ -22,6 +22,7 @@ AppDir:
     - sourceline: 'deb [trusted=yes] http://archive.ubuntu.com/ubuntu/ jammy-backports main restricted universe multiverse'
     include:
     - librsvg2-2
+    - librsvg2-common
     - lutris
     - cabextract
     - curl
