@@ -16,10 +16,10 @@ AppDir:
     sources:
     - sourceline: 'deb [trusted=yes] https://ppa.launchpadcontent.net/lutris-team/lutris/ubuntu jammy main'
     - sourceline: 'deb [trusted=yes] http://archive.ubuntu.com/ubuntu/ jammy main restricted universe multiverse'
-    - sourceline: 'deb [trusted=yes] http://archive.ubuntu.com/ubuntu/ xenial-security main restricted universe multiverse' 
-    - sourceline: 'deb [trusted=yes] http://archive.ubuntu.com/ubuntu/ xenial-updates main restricted universe multiverse'
-    - sourceline: 'deb [trusted=yes] http://archive.ubuntu.com/ubuntu/ xenial-proposed main restricted universe multiverse' 
-    - sourceline: 'deb [trusted=yes] http://archive.ubuntu.com/ubuntu/ xenial-backports main restricted universe multiverse'
+    - sourceline: 'deb [trusted=yes] http://archive.ubuntu.com/ubuntu/ jammy-security main restricted universe multiverse' 
+    - sourceline: 'deb [trusted=yes] http://archive.ubuntu.com/ubuntu/ jammy-updates main restricted universe multiverse'
+    - sourceline: 'deb [trusted=yes] http://archive.ubuntu.com/ubuntu/ jammy-proposed main restricted universe multiverse' 
+    - sourceline: 'deb [trusted=yes] http://archive.ubuntu.com/ubuntu/ jammy-backports main restricted universe multiverse'
     include:
     - librsvg2-2
     - lutris
@@ -69,7 +69,7 @@ AppDir:
       image: appimagecrafters/tests-env:fedora-30
       command: "dbus-launch ./AppRun"
     ubuntu:
-      image: appimagecrafters/tests-env:ubuntu-xenial
+      image: appimagecrafters/tests-env:ubuntu-jammy
       command: "dbus-launch ./AppRun"
 
 AppImage:
