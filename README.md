@@ -1,4 +1,4 @@
-# Lutris_AppImage
+# Lutris AppImage
 This is an unofficial AppImage package for [lutris](lutris.net)
 
 
