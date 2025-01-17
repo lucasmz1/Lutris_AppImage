@@ -1,0 +1,89 @@
+name: lutris CI
+
+# Controls when the action will run.
+on:
+  # Build at 00:00 every 6th day
+  schedule:
+    - cron: "0 0 */6 * *"
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main ]
+    paths-ignore: [ '**/README.md' ]
+  pull_request:
+    branches: [ main ]
+    paths-ignore: [ '**/README.md' ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+
+      - name: Make AppImage
+        run: |
+          chmod +x ./build_lutris.sh
+          ./build_lutris.sh
+          mkdir dist
+          echo "$PWD"
+          ls .
+          mv *.AppImage* dist/
+          echo "latest" > dist/version # Define version dynamically if needed
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AppImage
+          path: 'dist/*.AppImage*'
+
+      - name: Upload version artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: version
+          path: 'dist/version'
+
+  release:
+    needs: [build]
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download AppImage artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: AppImage
+
+      - name: Download version artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: version
+
+      - name: Read version
+        id: version
+        run: echo "APP_VERSION=$(cat version)" >> $GITHUB_ENV
+
+      - name: Delete Previous Release
+        run: |
+          gh release delete "${APP_VERSION}" --repo "${GITHUB_REPOSITORY}" --cleanup-tag -y || echo "No release to delete"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "Lutris AppImage ${{ env.APP_VERSION }}"
+          tag_name: "${{ env.APP_VERSION }}"
+          prerelease: false
+          draft: false
+          generate_release_notes: false
+          make_latest: true
+          files: |
+            *.AppImage*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
