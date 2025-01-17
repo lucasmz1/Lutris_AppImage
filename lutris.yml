@@ -6,7 +6,7 @@ AppDir:
   app_info:
     id: lutris
     name: lutris
-    icon: icon.svg
+    icon: lutris.png
     version: latest
     exec: usr/bin/python3
     exec_args: $APPDIR/usr/games/lutris $@
