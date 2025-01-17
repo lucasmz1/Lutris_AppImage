@@ -1,5 +1,5 @@
 #!/bin/bash
-sudo apt install -y wget binutils coreutils desktop-file-utils
+sudo apt install -y wget binutils coreutils desktop-file-utils libfuse2
 wget -c -q "https://github.com/AppImageCrafters/appimage-builder/releases/download/v1.1.0/appimage-builder-1.1.0-x86_64.AppImage" -O appimage-builder ; chmod +x appimage-builder
 ./appimage-builder --recipe lutris.yml --skip-appimage
 cp -f sitecustomize.py ./AppDir/etc/python3.*/
