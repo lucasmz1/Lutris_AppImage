@@ -69,7 +69,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           name: "Lutris AppImage ${{ env.APP_VERSION }}"
-          tag_name: Lutris Latest
+          tag_name: latest
           prerelease: false
           draft: false
           generate_release_notes: false
