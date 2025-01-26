@@ -58,15 +58,6 @@ jobs:
         with:
           name: AppImage
 
-      - name: Download version artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: version
-
-      - name: Read version
-        id: version
-        run: echo "APP_VERSION=$(cat version)" >> $GITHUB_ENV
-
       - name: Delete Previous Release
         run: |
           gh release delete "${APP_VERSION}" --repo "${GITHUB_REPOSITORY}" --cleanup-tag -y || echo "No release to delete"
