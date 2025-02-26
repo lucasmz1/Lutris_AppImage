@@ -9,4 +9,5 @@ cp -f loaders.cache ./AppDir/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/
 cp -f lutris.desktop ./AppDir/
 cp -f lutris.png ./AppDir/
 wget -c -q "https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage" -O appimagetool ; chmod +x appimagetool
+tar xvf mime.tar.gz -C ./AppDir/usr/share/
 ARCH=x86_64 ./appimagetool -n ./AppDir/
