@@ -42,7 +42,7 @@ jobs:
         - name: release
           uses: marvinpinto/action-automatic-releases@latest
           with:
-            title: 'Continuous build'
+            title: 'Continuous'
             automatic_release_tag: 'continuous'
             prerelease: false
             draft: false
