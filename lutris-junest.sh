@@ -3,7 +3,7 @@
 APP=lutris
 BIN="$APP" #CHANGE THIS IF THE NAME OF THE BINARY IS DIFFERENT FROM "$APP" (for example, the binary of "obs-studio" is "obs")
 DEPENDENCES="7zip file gtk-update-icon-cache pciutils xterm\
-lib32-libglvnd lib32-vulkan-icd-loader lib32-gnutls" #SYNTAX: "APP1 APP2 APP3 APP4...", LEAVE BLANK IF NO OTHER DEPENDENCIES ARE NEEDED
+lib32-libglvnd lib32-vulkan-icd-loader lib32-gnutls librsvg2-common" #SYNTAX: "APP1 APP2 APP3 APP4...", LEAVE BLANK IF NO OTHER DEPENDENCIES ARE NEEDED
 #BASICSTUFF="binutils debugedit gzip"
 #COMPILERS="base-devel"
 
