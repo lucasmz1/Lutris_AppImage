@@ -31,6 +31,14 @@ if [ ! -f ./appimagetool ]; then
 	curl -#Lo appimagetool https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage && chmod a+x appimagetool
 fi
 
+# Download the patched BubbleWrap
+if [ ! -f ./bwrap-x86_64  ]; then
+	echo "-----------------------------------------------------------------------------"
+	echo "◆ Downloading \"bwrap\" from https://github.com/VHSgunzo/bubblewrap-static"
+	echo "-----------------------------------------------------------------------------"
+	curl -#Lo bwrap-x86_64 "$(curl -Ls https://api.github.com/repos/VHSgunzo/bubblewrap-static/releases | sed 's/[()",{} ]/\n/g' | grep -oi "https.*download.*bwrap-x86_64$" | head -1)" && chmod a+x bwrap-x86_64
+fi
+
 # Create and enter the AppDir
 mkdir -p "$APP".AppDir archlinux && cd archlinux || exit 1
 
@@ -518,11 +526,11 @@ _remove_more_bloatwares() {
 	for r in $bin_remove; do
 		rm -Rf ./"$APP".AppDir/.junest/usr/bin/"$r"*
 	done
-	lib_remove="gcc"
+	lib_remove="gcc wine libwebkit libjavascript"
 	for r in $lib_remove; do
 		rm -Rf ./"$APP".AppDir/.junest/usr/lib/"$r"*
 	done
-	share_remove="gcc"
+	share_remove="gcc gir perl i18n terminfo help"
 	for r in $share_remove; do
 		rm -Rf ./"$APP".AppDir/.junest/usr/share/"$r"*
 	done
@@ -534,7 +542,7 @@ _remove_more_bloatwares() {
 	rm -Rf ./"$APP".AppDir/.junest/usr/share/man # AppImages are not ment to have man command
 	rm -Rf ./"$APP".AppDir/.junest/usr/lib/python*/__pycache__/* # if python is installed, removing this directory can save several megabytes
 	#rm -Rf ./"$APP".AppDir/.junest/usr/lib/libgallium*
-	#rm -Rf ./"$APP".AppDir/.junest/usr/lib/libgo.so*
+	rm -Rf ./"$APP".AppDir/.junest/usr/lib/libgo.so*
 	#rm -Rf ./"$APP".AppDir/.junest/usr/lib/libLLVM* # included in the compilation phase, can sometimes be excluded for daily use
 	rm -Rf ./"$APP".AppDir/.junest/var/* # remove all packages downloaded with the package manager
 }
@@ -563,6 +571,9 @@ find ./"$APP".AppDir/.junest/usr/bin -type f ! -regex '.*\.so.*' -exec strip --s
 find ./"$APP".AppDir/.junest/usr -type d -empty -delete
 _enable_mountpoints_for_the_inbuilt_bubblewrap
 
+# Replace BubbleWrap with the static one
+rm -f ./"$APP".AppDir/.junest/usr/bin/bwrap && cp -r bwrap-x86_64 ./"$APP".AppDir/.junest/usr/bin/bwrap
+
 #############################################################################
 #	CREATE THE APPIMAGE
 #############################################################################
@@ -570,8 +581,8 @@ _enable_mountpoints_for_the_inbuilt_bubblewrap
 if test -f ./*.AppImage; then rm -Rf ./*archimage*.AppImage; fi
 
 APPNAME=$(cat ./"$APP".AppDir/*.desktop | grep 'Name=' | head -1 | cut -c 6- | sed 's/ /-/g')
-REPO="$APPNAME-appimage"
-TAG="continuous"
+REPO="Lutris_AppImage"
+TAG="latest"
 VERSION="$VERSION"
 UPINFO="gh-releases-zsync|$GITHUB_REPOSITORY_OWNER|$REPO|$TAG|*x86_64.AppImage.zsync"
 
