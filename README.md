@@ -1,3 +1,7 @@
-# Lutris AppImage
-<h4>This is an unofficial AppImage package for Lutris<h4/>
+This is an unofficial AppImage for Lutris
 
+To Do list:
+- Make it detect Vulkan drivers/packages
+- add missing icons back
+
+credits to Lucas and Ivan
