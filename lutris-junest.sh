@@ -527,7 +527,7 @@ _remove_more_bloatwares() {
 	for r in $bin_remove; do
 		rm -Rf ./"$APP".AppDir/.junest/usr/bin/"$r"*
 	done
-	lib_remove="gcc wine libwebkit libjavascript"
+	lib_remove="gcc libwebkit libjavascript"
 	for r in $lib_remove; do
 		rm -Rf ./"$APP".AppDir/.junest/usr/lib/"$r"*
 	done
