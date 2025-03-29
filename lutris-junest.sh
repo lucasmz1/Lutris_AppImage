@@ -2,8 +2,9 @@
 
 APP=lutris
 BIN="$APP" #CHANGE THIS IF THE NAME OF THE BINARY IS DIFFERENT FROM "$APP" (for example, the binary of "obs-studio" is "obs")
-DEPENDENCES="7zip file gtk-update-icon-cache pciutils xterm\
-lib32-libglvnd lib32-vulkan-icd-loader lib32-gnutls" #SYNTAX: "APP1 APP2 APP3 APP4...", LEAVE BLANK IF NO OTHER DEPENDENCIES ARE NEEDED
+video_pkgs="mesa vulkan-radeon vulkan-intel vulkan-icd-loader vulkan-mesa-layers libva-mesa-driver libva-intel-driver intel-media-driver"
+DEPENDENCES="7zip file gtk-update-icon-cache librsvg pciutils xterm\
+lib32-libglvnd lib32-vulkan-icd-loader wayland xorg-xwayland yad lib32-gnutls $video_pkgs" #SYNTAX: "APP1 APP2 APP3 APP4...", LEAVE BLANK IF NO OTHER DEPENDENCIES ARE NEEDED
 #BASICSTUFF="binutils debugedit gzip"
 #COMPILERS="base-devel"
 
@@ -12,7 +13,7 @@ lib32-libglvnd lib32-vulkan-icd-loader lib32-gnutls" #SYNTAX: "APP1 APP2 APP3 AP
 #############################################################################
 
 BINSAVED="SAVEBINSPLEASE"
-SHARESAVED="SAVESHAREPLEASE"
+SHARESAVED="icons pixmaps"
 lib_audio_keywords="alsa jack pipewire pulse"
 lib_browser_launcher="gio-launch-desktop libasound.so libatk-bridge libatspi libcloudproviders libdb- libdl.so libedit libepoxy libgtk-3.so.0 libjson-glib libnssutil libpthread.so librt.so libtinysparql libwayland-cursor libX11-xcb.so libxapp-gtk3-module.so libXcursor libXdamage libXi.so libxkbfile.so libXrandr p11 pk"
 LIBSAVED="gdk-pixbuf svg $lib_audio_keywords $lib_browser_launcher"
