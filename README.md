@@ -17,7 +17,7 @@ Go to releases, download the latest build, make sure to set it executable.
 
 # Untested/maybe broken things
 - Wayland (it should work fine)
-- "i386 libGL.so.1 missing (needed by opengl)"
+- "i386 libGL.so.1 missing (needed by opengl)" you should be able to install this lib with your distro's package manager until I find a way to fix this
 
 
 credits to Lucas and Ivan
