@@ -35,7 +35,7 @@ if [ ! -f ./bwrap-x86_64  ]; then
 	echo "-----------------------------------------------------------------------------"
 	echo "◆ Downloading \"bwrap\" from https://github.com/VHSgunzo/bubblewrap-static"
 	echo "-----------------------------------------------------------------------------"
-	curl -#Lo bwrap-x86_64 "$(curl -Ls https://api.github.com/repos/VHSgunzo/bubblewrap-static/releases | sed 's/[()",{} ]/\n/g' | grep -oi "https.*download.*bwrap-x86_64$" | head -1)" && chmod a+x bwrap-x86_64
+	curl -C - -L -O "https://github.com/lucasmz1/bubblewrap-musl-static/releases/download/7f9bc5f/bwrap-x86_64" && chmod a+x bwrap-x86_64 
 fi
 
 # Create and enter the AppDir
