@@ -284,7 +284,7 @@ _JUNEST_CMD() {
 }
 
 EXEC=$(grep -e '^Exec=.*' "${HERE}"/*.desktop | head -n 1 | cut -d "=" -f 2- | sed -e 's|%.||g')
-
+if ! echo "$EXEC" | grep -q "/usr/bin"; then EXEC="/usr/bin/$EXEC"; fi
 _JUNEST_CMD -- $EXEC "$@"
 
 HEREDOC
