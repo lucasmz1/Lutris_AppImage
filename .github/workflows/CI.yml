@@ -20,6 +20,8 @@ jobs:
         sudo apt update && sudo apt install desktop-file-utils
         chmod a+x ./lutris-junest2.sh
         ./lutris-junest2.sh
+        find -iname 'AppDir' | xargs -i -t -exec cp lutris.desktop {}
+        find -iname 'AppDir' | xargs -i -t -exec cp lutris.png {}
         mkdir dist
         mv *AppImage* dist/
 
