@@ -2,14 +2,14 @@
 
 APP=lutris
 BIN="$APP" #CHANGE THIS IF THE NAME OF THE BINARY IS DIFFERENT FROM "$APP" (for example, the binary of "obs-studio" is "obs")
-DEPENDENCES=$(echo "7zip freetype2 lib32-freetype2 file gtk-update-icon-cache pciutils xterm adwaita-icon-theme adwaita-icon-theme-legacy lib32-libglvnd lib32-vulkan-icd-loader lib32-gnutls cabextract curl gdk-pixbuf2 glib2 gnome-desktop gobject-introspection-runtime gtk3 hicolor-icon-theme mesa-utils p7zip pango psmisc python python-cairo python-certifi python-dbus python-distro python-evdev python-gobject python-lxml python-moddb python-pillow python-requests python-urllib3 python-yaml unzip webkit2gtk-4.1 xdg-desktop-portal-impl xorg-xrandr fluidsynth gamemode gvfs innoextract lib32-gamemode lib32-gnutls lib32-mesa-libgl lib32-vkd3d lib32-vulkan-icd-loader libayatana-appindicator python-pefile python-protobuf umu-launcher vkd3d vulkan-icd-loader vulkan-tools xorg-xgamma git meson ninja protobuf python-poetry-core fluidsynth pciutils python-nose vulkan-tools xorg-server-xvfb xterm" | tr ' ' '\n' | sort -u | xargs)
+DEPENDENCES=$(echo "7zip freetype2 lib32-freetype2 file gtk-update-icon-cache pciutils harfbuzz xterm adwaita-icon-theme adwaita-icon-theme-legacy lib32-libglvnd lib32-vulkan-icd-loader lib32-gnutls cabextract curl gdk-pixbuf2 glib2 gnome-desktop gobject-introspection-runtime gtk3 hicolor-icon-theme mesa-utils p7zip pango psmisc python python-cairo python-certifi python-dbus python-distro python-evdev python-gobject python-lxml python-moddb python-pillow python-requests python-urllib3 python-yaml unzip webkit2gtk-4.1 xdg-desktop-portal-impl xorg-xrandr fluidsynth gamemode gvfs innoextract lib32-gamemode lib32-gnutls lib32-mesa-libgl lib32-vkd3d lib32-vulkan-icd-loader libayatana-appindicator python-pefile python-protobuf umu-launcher vkd3d vulkan-icd-loader vulkan-tools xorg-xgamma git meson ninja protobuf python-poetry-core fluidsynth pciutils python-nose vulkan-tools xorg-server-xvfb xterm" | tr ' ' '\n' | sort -u | xargs)
 #BASICSTUFF="binutils debugedit gzip"
 #COMPILERS="base-devel"
 
 # Set keywords to searchan include in names of directories and files in /usr/bin (BINSAVED), /usr/share (SHARESAVED) and /usr/lib (LIBSAVED)
 BINSAVED="SAVEBINSPLEASE"
 SHARESAVED="SAVESHAREPLEASE"
-LIBSAVED="alsa jack pipewire pulse gdk-pixbuf svg"
+LIBSAVED="alsa jack pipewire pulse gdk-pixbuf svg HarfBuzz"
 
 # Set the items you want to manually REMOVE. Complete the path in /etc/, /usr/bin/, /usr/lib/, /usr/lib/python*/ and /usr/share/ respectively.
 # The "rm" command will take into account the listed object/path and add an asterisk at the end, completing the path to be removed.
