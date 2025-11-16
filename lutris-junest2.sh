@@ -109,6 +109,8 @@ _JUNEST_CMD -- $EXEC "$@"
 
 HEREDOC
 chmod a+x AppDir/AppRun
+find -iname 'lutris.desktop' | xargs -i -t -exec cp  {} ./AppDir
+find -iname 'lutris.png' | xargs -i -t -exec cp {} ./AppDir
 
 ##########################################################################################################################################################
 #	COMPILE
