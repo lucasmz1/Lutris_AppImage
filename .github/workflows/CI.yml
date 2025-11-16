@@ -18,7 +18,7 @@ jobs:
       if: always()
       run: |
         sudo apt update && sudo apt install desktop-file-utils
-        chmod a+x ./lutris-junest.sh
+        chmod a+x ./lutris-junest2.sh
         ./lutris-junest2.sh
         mkdir dist
         mv *AppImage* dist/
