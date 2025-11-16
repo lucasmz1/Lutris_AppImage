@@ -2,14 +2,16 @@
 
 APP=lutris
 BIN="$APP" #CHANGE THIS IF THE NAME OF THE BINARY IS DIFFERENT FROM "$APP" (for example, the binary of "obs-studio" is "obs")
-DEPENDENCES="" #SYNTAX: "APP1 APP2 APP3 APP4...", LEAVE BLANK IF NO OTHER DEPENDENCIES ARE NEEDED
+DEPENDENCES="7zip freetype2 lib32-freetype2 file gtk-update-icon-cache pciutils xterm adwaita-icon-theme adwaita-icon-theme-legacy lib32-libglvnd lib32-vulkan-icd-loader lib32-gnutls cabextract curl gdk-pixbuf2 glib2 gnome-desktop gobject-introspection-runtime gtk3 hicolor-icon-theme mesa-utils p7zip pango psmisc python python-cairo python-certifi python-dbus python-distro python-evdev python-gobject python-lxml python-moddb python-pillow python-requests python-urllib3 python-yaml unzip webkit2gtk-4.1 xdg-desktop-portal-impl xorg-xrandr fluidsynth gamemode gvfs innoextract lib32-gamemode lib32-gnutls lib32-mesa-libgl lib32-vkd3d lib32-vulkan-icd-loader libayatana-appindicator python-pefile python-protobuf umu-launcher vkd3d vulkan-icd-loader vulkan-tools xorg-xgamma git meson ninja protobuf python-poetry-core fluidsynth pciutils python-nose vulkan-tools xorg-server-xvfb xterm" #SYNTAX: "APP1 APP2 APP3 APP4...", LEAVE BLANK IF NO OTHER DEPENDENCIES ARE NEEDED
 #BASICSTUFF="binutils debugedit gzip"
 #COMPILERS="base-devel"
 
 # Set keywords to searchan include in names of directories and files in /usr/bin (BINSAVED), /usr/share (SHARESAVED) and /usr/lib (LIBSAVED)
 BINSAVED="SAVEBINSPLEASE"
 SHARESAVED="SAVESHAREPLEASE"
-LIBSAVED="SAVELIBSPLEASE"
+lib_audio_keywords="alsa jack pipewire pulse"
+lib_browser_launcher="gio-launch-desktop libasound.so libatk-bridge libatspi libcloudproviders libdb- libdl.so libedit libepoxy libgtk-3.so.0 libjson-glib libnssutil libpthread.so librt.so libtinysparql libwayland-cursor libX11-xcb.so libxapp-gtk3-module.so libXcursor libXdamage libXi.so libxkbfile.so libXrandr p11 pk"
+LIBSAVED="gdk-pixbuf svg $lib_audio_keywords $lib_browser_launcher"
 
 # Set the items you want to manually REMOVE. Complete the path in /etc/, /usr/bin/, /usr/lib/, /usr/lib/python*/ and /usr/share/ respectively.
 # The "rm" command will take into account the listed object/path and add an asterisk at the end, completing the path to be removed.
