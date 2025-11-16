@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
 
@@ -18,8 +18,10 @@ jobs:
       if: always()
       run: |
         sudo apt update && sudo apt install desktop-file-utils
-        chmod a+x ./lutris-junest2.sh
-        ./lutris-junest2.sh
+        sudo sysctl -w kernel.apparmor_restrict_unprivileged_unconfined=0
+        sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+        chmod a+x ./lutris-junest.sh
+        ./lutris-junest.sh
         mkdir dist
         mv *AppImage* dist/
 
