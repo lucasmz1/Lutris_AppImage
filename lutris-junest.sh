@@ -7,7 +7,7 @@ DEPENDENCES=$(echo "python-charset-normalizer util-linux vulkan-intel lib32-vulk
 #COMPILERS="base-devel"
 
 # Set keywords to searchan include in names of directories and files in /usr/bin (BINSAVED), /usr/share (SHARESAVED) and /usr/lib (LIBSAVED)
-BINSAVED=" free hugetop pgrep pidof pidwait pkill pmap ps pwdx slabtop sysctl tload top uptime vmstat w watch taskset vkcube vkcubepp vulkaninfo cabextract curl p7zip unzip eglgears_wayland eglgears_x11 eglinfo eglkms egltri_wayland egltri_x11 es2_info es2gears_wayland es2gears_x11 es2tri glxgears glxinfo peglgears vkgears xeglgears xeglthreads"
+BINSAVED="free hugetop pgrep pidof pidwait pkill pmap ps pwdx slabtop sysctl tload top uptime vmstat w watch taskset vkcube vkcubepp vulkaninfo cabextract curl p7zip unzip eglgears_wayland eglgears_x11 eglinfo eglkms egltri_wayland egltri_x11 es2_info es2gears_wayland es2gears_x11 es2tri glxgears glxinfo peglgears vkgears xeglgears xeglthreads"
 SHARESAVED="vulkan"
 LIBSAVED="libgl lib32-libgl vulkan-icd-loader lib32-vulkan-icd-loader gnutls lib32-gnutls alsa jack pipewire pulse gdk-pixbuf svg HarfBuzz harfbuzz Atk idna girepository zstd Zstd mesa vulkan-nouveau mesa-libgl vulkan-swrast vulkan-asahi vulkan-mesa-layers vulkan-virtio-gpu lib32-mesa lib32-nvidia-utils vulkan-icd-loader lib32-vulkan-icd-loader gnutls lib32-gnutls"
 
