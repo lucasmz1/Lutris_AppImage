@@ -7,7 +7,7 @@ DEPENDENCES=$(echo "util-linux vulkan-intel lib32-vulkan-intel vulkan-radeon lib
 #COMPILERS="base-devel"
 
 # Set keywords to searchan include in names of directories and files in /usr/bin (BINSAVED), /usr/share (SHARESAVED) and /usr/lib (LIBSAVED)
-BINSAVED="taskset"
+BINSAVED="taskset vkcube vkcubepp vulkaninfo cabextract curl p7zip unzip eglgears_wayland eglgears_x11 eglinfo eglkms egltri_wayland egltri_x11 es2_info es2gears_wayland es2gears_x11 es2tri glxgears glxinfo peglgears vkgears xeglgears xeglthreads"
 SHARESAVED="SAVESHAREPLEASE"
 LIBSAVED="alsa jack pipewire pulse gdk-pixbuf svg HarfBuzz harfbuzz Atk idna girepository zstd Zstd"
 
