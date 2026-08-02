@@ -7,7 +7,7 @@ DEPENDENCES=$(echo "zenity gamescope mangohud lib32-mangohud sdl2 util-linux tar
 #COMPILERS="base-devel"
 
 # Set keywords to searchan include in names of directories and files in /usr/bin (BINSAVED), /usr/share (SHARESAVED) and /usr/lib (LIBSAVED)
-BINSAVED="sha256sum mangoapp gamescope mangohud mangohudctl mangoplot tar lsblk gzip od zenity free hugetop pgrep pidof pidwait pkill pmap ps pwdx slabtop sysctl tload top uptime vmstat w watch taskset vkcube vkcubepp vulkaninfo cabextract curl p7zip unzip eglgears_wayland eglgears_x11 eglinfo eglkms egltri_wayland egltri_x11 es2_info es2gears_wayland es2gears_x11 es2tri glxgears glxinfo peglgears vkgears xeglgears xeglthreads"
+BINSAVED="sha256sum mangoapp ldconfig gamescope mangohud mangohudctl mangoplot tar lsblk gzip od zenity free hugetop pgrep pidof pidwait pkill pmap ps pwdx slabtop sysctl tload top uptime vmstat w watch taskset vkcube vkcubepp vulkaninfo cabextract curl p7zip unzip eglgears_wayland eglgears_x11 eglinfo eglkms egltri_wayland egltri_x11 es2_info es2gears_wayland es2gears_x11 es2tri glxgears glxinfo peglgears vkgears xeglgears xeglthreads"
 SHARESAVED="vulkan"
 LIBSAVED="libadwaita libvklayer libmangohud libsdl2 libgl lib32-libgl vulkan-icd-loader lib32-vulkan-icd-loader gnutls lib32-gnutls alsa jack pipewire pulse gdk-pixbuf svg HarfBuzz harfbuzz Atk idna girepository zstd Zstd mesa vulkan-nouveau mesa-libgl vulkan-swrast vulkan-asahi vulkan-mesa-layers vulkan-virtio-gpu lib32-mesa lib32-nvidia-utils vulkan-icd-loader lib32-vulkan-icd-loader gnutls lib32-gnutls"
 
