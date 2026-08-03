@@ -95,7 +95,6 @@ export NVIDIA_ON=1
 
 # AppRun footer, here you can add options and change the way the AppImage interacts with its internal structure
 cat <<-'HEREDOC' >> AppDir/AppRun
-export $(dbus-launch)
 
 export MY_PATH="$HOME/.local/share/lutris/runtime/winetricks"
 
