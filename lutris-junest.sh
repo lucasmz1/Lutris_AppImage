@@ -32,10 +32,10 @@ _post_installation_processes() {
 	printf "\n◆ User's processes: \n\n"
 	echo " - None"
 	# Add here your code
-	mkdir -p /usr/lib/mangohud/lib64
-	mkdir -p /usr/lib32/mangohud/lib32
-	cp -r /usr/lib/mangohud/lib* /usr/lib/mangohud/lib64/
-	cp -r /usr/lib32/mangohud/lib* /usr/lib32/mangohud/lib32/
+	mkdir -p /AppDir/.junest/usr/lib/mangohud/lib64
+	mkdir -p /AppDir/.junest/usr/lib32/mangohud/lib32
+	cp -r /AppDir/.junest/usr/lib/mangohud/lib* /AppDir/.junest/usr/lib/mangohud/lib64/
+	cp -r /AppDir/.junest/usr/lib32/mangohud/lib* /AppDir/.junest/usr/lib32/mangohud/lib32/
 }
 
 ##########################################################################################################################################################
