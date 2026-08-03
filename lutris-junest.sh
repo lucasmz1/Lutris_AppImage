@@ -32,10 +32,6 @@ _post_installation_processes() {
 	printf "\n◆ User's processes: \n\n"
 	echo " - None"
 	# Add here your code
-	mkdir -p /AppDir/.junest/usr/lib/mangohud/lib64
-	mkdir -p /AppDir/.junest/usr/lib32/mangohud/lib32
-	cp -r /AppDir/.junest/usr/lib/mangohud/lib* /AppDir/.junest/usr/lib/mangohud/lib64/
-	cp -r /AppDir/.junest/usr/lib32/mangohud/lib* /AppDir/.junest/usr/lib32/mangohud/lib32/
 }
 
 ##########################################################################################################################################################
@@ -123,6 +119,11 @@ chmod a+x AppDir/AppRun
 ##########################################################################################################################################################
 
 if test -f ./*.AppImage; then rm -Rf ./*archimage*.AppImage; fi
+
+mkdir -p /AppDir/.junest/usr/lib/mangohud/lib64
+mkdir -p /AppDir/.junest/usr/lib32/mangohud/lib32
+cp -r /AppDir/.junest/usr/lib/mangohud/lib* /AppDir/.junest/usr/lib/mangohud/lib64/
+cp -r /AppDir/.junest/usr/lib32/mangohud/lib* /AppDir/.junest/usr/lib32/mangohud/lib32/
 
 APPNAME=$(cat AppDir/*.desktop | grep '^Name=' | head -1 | cut -c 6- | sed 's/ /-/g')
 REPO="Lutris_AppImage"
