@@ -11,4 +11,3 @@
 <br>Basically I don't install anything on my system to run a game I just download one of Krone4k's wine builds and add them to the system PATH using environment variable PATH<br/>
 <br>Then I use I setup the wine bin in the option of wine's personanlized executable and then make it's playable<br/>
 <br>If you face any issue report a bug<br/>
-<br>Short Tutorial --> https://www.youtube.com/watch?v=EgbvQkeLtVY <-- <br/>
