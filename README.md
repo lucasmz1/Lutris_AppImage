@@ -1,6 +1,6 @@
 # Lutris AppImage
 <h4>This is an unofficial AppImage package for Lutris<h4/>
-
+<h5>Let me ask you a question: how is the rate of this project for you?<h5/>
 <br>Fixed wintricks not working<br/>
 <br>Fixed controller not being recognized<br/>
 <br>Please report Bugs<br/>
