@@ -37,6 +37,7 @@ _post_installation_processes() {
 	
 	cp -r AppDir/.junest/usr/lib/mangohud/lib* AppDir/.junest/usr/lib/mangohud/lib64/ 2>/dev/null || true
 	cp -r AppDir/.junest/usr/lib32/mangohud/lib* AppDir/.junest/usr/lib32/mangohud/lib32/ 2>/dev/null || true
+	cp -f AppRun ./AppDir/
 }
 
 ##########################################################################################################################################################
