@@ -26,7 +26,7 @@ jobs:
 
       - name: "Push to Source"
         run: |
-          git config --global user.name "ivan-hc"
+          git config --global user.name "lucasmz1"
           git config --global user.email "noreply@github.com"
           git add latest-release.txt
           if git diff-index --quiet HEAD; then
