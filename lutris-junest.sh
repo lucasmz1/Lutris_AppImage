@@ -38,6 +38,8 @@ _post_installation_processes() {
 	cp -r AppDir/.junest/usr/lib/mangohud/lib* AppDir/.junest/usr/lib/mangohud/lib64/ 2>/dev/null || true
 	cp -r AppDir/.junest/usr/lib32/mangohud/lib* AppDir/.junest/usr/lib32/mangohud/lib32/ 2>/dev/null || true
 	cp -f AppRun ./AppDir/
+	cd AppDir/.junest/usr/share/vulkan/icd.d/ | xargs -I {} sh -c 'ln -rs "{}" "$(echo {} | sed "s/\.json$/\.x86_64\.json/")"'
+	cd ${GITHUB_WORKSPACE}
 }
 
 ##########################################################################################################################################################
