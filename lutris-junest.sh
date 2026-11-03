@@ -135,9 +135,6 @@ UPINFO="gh-releases-zsync|$GITHUB_REPOSITORY_OWNER|$REPO|$TAG|*x86_64.AppImage.z
 
 echo "$VERSION" > ./version
 
-_appimagetool() {
-	[ -f ./archimage-builder.sh ]
-	&& source ./archimage-builder.sh
-}
+[ -f ./archimage-builder.sh ] && source ./archimage-builder.sh "$@"
 
 ARCH=x86_64 _appimagetool -u "$UPINFO" AppDir "$APPNAME"_"$VERSION"-"$ARCHIMAGE_VERSION"-x86_64.AppImage
