@@ -34,6 +34,9 @@ _post_installation_processes() {
 	# Add here your code
 	mkdir -p AppDir/.junest/usr/lib/mangohud/lib64
 	mkdir -p AppDir/.junest/usr/lib32/mangohud/lib32
+	cd AppDir/.junest/usr/share/
+	ln -frs gamescope/ ../../etc/
+	cd ${GITHUB_WORKSPACE}
 	
 	cp -r AppDir/.junest/usr/lib/mangohud/lib* AppDir/.junest/usr/lib/mangohud/lib64/ 2>/dev/null || true
 	cp -r AppDir/.junest/usr/lib32/mangohud/lib* AppDir/.junest/usr/lib32/mangohud/lib32/ 2>/dev/null || true
