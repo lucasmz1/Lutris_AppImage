@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 HERE="$(dirname "$(readlink -f "$0")")"
 export JUNEST_HOME="$HERE"/.junest
 
@@ -12,7 +12,6 @@ if command -v unshare >/dev/null 2>&1 && ! unshare -Urm /bin/true 2>/dev/null; t
 else
    export PATH="$PATH":"$HERE"/.local/share/junest/bin
 fi
-
 
 [ -z "$NVIDIA_ON" ] && NVIDIA_ON=1
 if [ -f /sys/module/nvidia/version ] && [ "$NVIDIA_ON" = 1 ]; then
@@ -36,15 +35,14 @@ if [ -f /sys/module/nvidia/version ] && [ "$NVIDIA_ON" = 1 ]; then
    [ -f "${libvdpau}"."${nvidia_driver_version}" ] && [ ! -f "${libvdpau}" ] && ln -s "${libvdpau}"."${nvidia_driver_version}" "${libvdpau}"
    export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}":"${JUNEST_LIBS}":"${LD_LIBRARY_PATH}"
 
-   # Ativa os diretórios de dados da NVIDIA apenas se o driver estiver presente
    bind_nvidia_data_dirs="/usr/share/egl /usr/share/glvnd /usr/share/nvidia /usr/share/vulkan"
 else
    bind_nvidia_data_dirs=""
 fi
 
+bind_files="/etc/resolv.conf /etc/hosts /etc/nsswitch.conf /etc/passwd /etc/group /etc/machine-id /etc/asound.conf /etc/localtime"
+bind_dirs=" /media /mnt /opt /run/media /usr/lib/locale /usr/share/fonts /usr/share/themes /var $bind_nvidia_data_dirs $XDG_RUNTIME_DIR"
 
-bind_files="/etc/resolv.conf /etc/hosts /etc/nsswitch.conf /etc/passwd /etc/group /etc/machine-id /etc/asound.conf /etc/localtime "
-bind_dirs=" /media /mnt /opt /run/media /usr/lib/locale /usr/share/fonts /usr/share/themes /var $bind_nvidia_data_dirs"
 if [ "$PROOT_ON" = 1 ]; then
    for f in $bind_files; do [ -f "$f" ] && BINDINGS=" $BINDINGS --bind=$f"; done
    for d in $bind_dirs; do [ -d "$d" ] && BINDINGS=" $BINDINGS --bind=$d"; done
@@ -53,17 +51,23 @@ if [ "$PROOT_ON" = 1 ]; then
 else
    for f in $bind_files; do [ -f "$f" ] && BINDINGS=" $BINDINGS --ro-bind-try $f $f"; done
    for d in $bind_dirs; do [ -d "$d" ] && BINDINGS=" $BINDINGS --bind-try $d $d"; done
+
+   X11_SOCKET_NAME="X${DISPLAY#*:}"
+   SOCKET_BIND=""
+   if [ -S "/tmp/.X11-unix/$X11_SOCKET_NAME" ]; then
+       SOCKET_BIND="--tmpfs /tmp/.X11-unix --ro-bind /tmp/.X11-unix/$X11_SOCKET_NAME /tmp/.X11-unix/$X11_SOCKET_NAME"
+   fi
+
    junest_options="-n -b"
-   junest_bindings=" --dev-bind /dev /dev --ro-bind /sys /sys --bind-try /tmp /tmp --proc /proc $BINDINGS --cap-add CAP_SYS_ADMIN "
+   # Adicionada permissão extra de IPC/shm e compartilhamento para estabilizar o Xwayland interno do gamescope
+   junest_bindings=" --dev-bind /dev /dev --ro-bind /sys /sys --bind-try /tmp /tmp --proc /proc $BINDINGS $SOCKET_BIND --cap-add CAP_SYS_ADMIN "
 fi
 
 _JUNEST_CMD() {
    "$HERE"/.local/share/junest/bin/junest $junest_options "$junest_bindings" "$@"
 }
 
-
 export MY_PATH="$HOME/.local/share/lutris/runtime/winetricks"
-
 export PATH="$MY_PATH:${PATH}"
 
 EXEC=$(grep -e '^Exec=.*' "${HERE}"/*.desktop | head -n 1 | cut -d "=" -f 2- | sed -e 's|%.||g')
