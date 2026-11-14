@@ -116,8 +116,7 @@ if ! echo "$EXEC" | grep -q "/usr/bin"; then EXEC="/usr/bin/$EXEC"; fi
 _JUNEST_CMD -- $EXEC "$@"
 
 HEREDOC
-cp -f AppRun2 ./AppDir/
-mv ./AppDir/AppRun2 ./AppDir/AppRun
+cp -f AppRun ./AppDir/
 chmod a+x AppDir/AppRun
 
 ##########################################################################################################################################################
