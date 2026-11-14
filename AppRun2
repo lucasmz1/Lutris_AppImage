@@ -1,0 +1,263 @@
+
+#!/bin/bash
+
+HERE="$(dirname "$(readlink -f "$0")")"
+export JUNEST_HOME="$HERE/.junest"
+
+CACHEDIR="${XDG_CACHE_HOME:-$HOME/.cache}"
+mkdir -p "$CACHEDIR" || exit 1
+
+# --------------------------------------------------
+# Detecta modo de execução
+# --------------------------------------------------
+
+PROOT_ON=0
+
+if command -v unshare >/dev/null 2>&1 && ! unshare -Urm /bin/true 2>/dev/null; then
+   echo "JuNest running in proot mode"
+   PROOT_ON=1
+   export PATH="$HERE/.local/share/junest/bin/:$PATH"
+else
+   export PATH="$PATH:$HERE/.local/share/junest/bin"
+fi
+
+# --------------------------------------------------
+# Detecção automática de GPU
+# --------------------------------------------------
+
+GPU_DRIVER="unknown"
+
+if [ -d /sys/module/nvidia ]; then
+   GPU_DRIVER="nvidia"
+elif [ -d /sys/module/nouveau ]; then
+   GPU_DRIVER="nouveau"
+elif [ -d /sys/module/amdgpu ]; then
+   GPU_DRIVER="amd"
+elif [ -d /sys/module/radeon ]; then
+   GPU_DRIVER="amd"
+fi
+
+# Confirma o driver realmente associado à GPU PCI
+if [ -d /sys/bus/pci/devices ]; then
+   for gpu in /sys/bus/pci/devices/*; do
+      [ -e "$gpu/vendor" ] || continue
+
+      vendor=$(cat "$gpu/vendor" 2>/dev/null)
+      driver=$(basename "$(readlink -f "$gpu/driver" 2>/dev/null)" 2>/dev/null)
+
+      case "$vendor:$driver" in
+         0x10de:nvidia)
+            GPU_DRIVER="nvidia"
+            break
+            ;;
+         0x10de:nouveau)
+            GPU_DRIVER="nouveau"
+            ;;
+         0x1002:amdgpu|0x1002:radeon)
+            [ "$GPU_DRIVER" = "unknown" ] && GPU_DRIVER="amd"
+            ;;
+      esac
+   done
+fi
+
+echo "GPU detectada: $GPU_DRIVER"
+
+# --------------------------------------------------
+# NVIDIA: somente driver proprietário
+# --------------------------------------------------
+
+[ -z "$NVIDIA_ON" ] && NVIDIA_ON=1
+
+nv_bind=""
+nv_proot_bind=""
+
+if [ "$GPU_DRIVER" = "nvidia" ] && [ "$NVIDIA_ON" = 1 ]; then
+
+   echo "NVIDIA proprietária detectada. Ativando integração..."
+
+   # Dispositivos NVIDIA
+   nv_bind="--dev-bind-try /dev/dri /dev/dri \
+     --dev-bind-try /dev/nvidia0 /dev/nvidia0 \
+     --dev-bind-try /dev/nvidia1 /dev/nvidia1 \
+     --dev-bind-try /dev/nvidiactl /dev/nvidiactl \
+     --dev-bind-try /dev/nvidia-modeset /dev/nvidia-modeset \
+     --dev-bind-try /dev/nvidia-uvm /dev/nvidia-uvm \
+     --dev-bind-try /dev/nvidia-uvm-tools /dev/nvidia-uvm-tools \
+     --ro-bind-try /sys/bus/pci /sys/bus/pci \
+     --ro-bind-try /sys/devices /sys/devices \
+     --ro-bind-try /sys/module/nvidia /sys/module/nvidia"
+
+   # Bibliotecas NVIDIA do host
+   HOST_NV_LIBS=$(ldconfig -p 2>/dev/null |
+      grep -iE 'nvidia|libcuda|nvoptix|nvcuvid' |
+      awk '{print $NF}' | sort -u)
+
+   for lib_path in $HOST_NV_LIBS; do
+      [ -f "$lib_path" ] || continue
+
+      lib_name=$(basename "$lib_path")
+
+      case "$lib_path" in
+         *i386*|*lib32*)
+            target_dir="/usr/lib32"
+            ;;
+         *)
+            target_dir="/usr/lib"
+            ;;
+      esac
+
+      nv_bind="$nv_bind --ro-bind-try $lib_path $target_dir/$lib_name"
+      nv_proot_bind="$nv_proot_bind --bind=$lib_path:$target_dir/$lib_name"
+   done
+
+   # VDPAU
+   for vdpau_dir in \
+      /usr/lib/x86_64-linux-gnu/vdpau \
+      /usr/lib/i386-linux-gnu/vdpau \
+      /usr/lib/vdpau; do
+
+      [ -d "$vdpau_dir" ] || continue
+
+      for vlib in "$vdpau_dir"/libvdpau_nvidia.so*; do
+         [ -f "$vlib" ] || continue
+
+         nv_bind="$nv_bind --ro-bind-try $vlib /usr/lib/vdpau/$(basename "$vlib")"
+         nv_proot_bind="$nv_proot_bind --bind=$vlib:/usr/lib/vdpau/$(basename "$vlib")"
+      done
+   done
+
+   # Vulkan ICD
+   NV_TMP_DIR="$CACHEDIR/junest_nvidia_icd"
+   mkdir -p "$NV_TMP_DIR"
+
+   for icd in \
+      /usr/share/vulkan/icd.d/nvidia_icd*.json \
+      /etc/vulkan/icd.d/nvidia_icd*.json; do
+
+      [ -f "$icd" ] || continue
+
+      sed \
+         's|/usr/lib/x86_64-linux-gnu/|/usr/lib/|g; s|/usr/lib/i386-linux-gnu/|/usr/lib32/|g' \
+         "$icd" > "$NV_TMP_DIR/nvidia_icd.json"
+
+      nv_bind="$nv_bind --ro-bind-try $NV_TMP_DIR/nvidia_icd.json /usr/share/vulkan/icd.d/nvidia_icd.json"
+      nv_proot_bind="$nv_proot_bind --bind=$NV_TMP_DIR/nvidia_icd.json:/usr/share/vulkan/icd.d/nvidia_icd.json"
+
+      break
+   done
+
+   # EGL Vendor
+   for egl in /usr/share/glvnd/egl_vendor.d/*nvidia*.json; do
+      [ -f "$egl" ] || continue
+
+      sed \
+         's|/usr/lib/x86_64-linux-gnu/|/usr/lib/|g' \
+         "$egl" > "$NV_TMP_DIR/10_nvidia.json"
+
+      nv_bind="$nv_bind --ro-bind-try $NV_TMP_DIR/10_nvidia.json /usr/share/glvnd/egl_vendor.d/10_nvidia.json"
+      nv_proot_bind="$nv_proot_bind --bind=$NV_TMP_DIR/10_nvidia.json:/usr/share/glvnd/egl_vendor.d/10_nvidia.json"
+
+      break
+   done
+
+elif [ "$GPU_DRIVER" = "nouveau" ]; then
+
+   echo "Nouveau detectado. Ignorando bibliotecas NVIDIA do host."
+   echo "Usando Mesa/Nouveau interno do container."
+
+elif [ "$GPU_DRIVER" = "amd" ]; then
+
+   echo "AMD detectada. Usando Mesa/RADV interno do container."
+
+else
+
+   echo "Nenhum driver NVIDIA proprietário detectado."
+   echo "Usando drivers internos do container."
+
+fi
+
+# --------------------------------------------------
+# Arquivos e diretórios compartilhados
+# --------------------------------------------------
+
+nvidia_binaries=""
+
+if [ "$GPU_DRIVER" = "nvidia" ] && [ "$NVIDIA_ON" = 1 ]; then
+   nvidia_binaries="/usr/bin/nvidia-smi /usr/bin/nvidia-settings /usr/bin/nvidia-modprobe /usr/bin/nvidia-bug-report.sh /usr/bin/nvidia-sleep.sh /usr/bin/nvidia-debugdump"
+fi
+
+bind_files="/etc/resolv.conf /etc/hosts /etc/nsswitch.conf /etc/passwd /etc/group /etc/machine-id /etc/asound.conf /etc/localtime $nvidia_binaries"
+
+bind_dirs="/media /mnt /opt /run/media /usr/lib/locale /usr/share/fonts /usr/share/themes /var $XDG_RUNTIME_DIR"
+
+BINDINGS=""
+
+# --------------------------------------------------
+# PROOT
+# --------------------------------------------------
+
+if [ "$PROOT_ON" = 1 ]; then
+
+   for f in $bind_files; do
+      [ -f "$f" ] && BINDINGS="$BINDINGS --bind=$f"
+   done
+
+   for d in $bind_dirs; do
+      [ -d "$d" ] && BINDINGS="$BINDINGS --bind=$d"
+   done
+
+   junest_options="proot -n -b"
+
+   junest_bindings="--bind=/dev --bind=/sys --bind=/tmp --bind=/proc \
+      $BINDINGS $nv_proot_bind \
+      --bind=/home --bind=/home/$USER"
+
+else
+
+   # --------------------------------------------------
+   # Bubblewrap
+   # --------------------------------------------------
+
+   for f in $bind_files; do
+      [ -f "$f" ] && BINDINGS="$BINDINGS --ro-bind-try $f $f"
+   done
+
+   for d in $bind_dirs; do
+      [ -d "$d" ] && BINDINGS="$BINDINGS --bind-try $d $d"
+   done
+
+   X11_SOCKET_NAME="X${DISPLAY#*:}"
+   SOCKET_BIND=""
+
+   if [ -S "/tmp/.X11-unix/$X11_SOCKET_NAME" ]; then
+      SOCKET_BIND="--tmpfs /tmp/.X11-unix --ro-bind /tmp/.X11-unix/$X11_SOCKET_NAME /tmp/.X11-unix/$X11_SOCKET_NAME"
+   fi
+
+   junest_options="-n -b"
+
+   junest_bindings="--dev /dev \
+      --ro-bind /sys /sys \
+      --bind-try /tmp /tmp \
+      --proc /proc \
+      $BINDINGS $SOCKET_BIND \
+      $nv_bind \
+      --cap-add CAP_SYS_ADMIN"
+
+fi
+
+# --------------------------------------------------
+# Inicialização JuNest
+# --------------------------------------------------
+
+_JUNEST_CMD() {
+   "$HERE/.local/share/junest/bin/junest" \
+      $junest_options "$junest_bindings" "$@"
+}
+
+export MY_PATH="$HOME/.local/share/lutris/runtime/winetricks"
+export PATH="$MY_PATH:${PATH}"
+
+EXEC=$(grep -e '^Exec=.*' "${HERE}"/*.desktop | head -n 1 | cut -d "=" -f 2- | sed -e 's|%.||g')
+if ! echo "$EXEC" | grep -q "/usr/bin"; then EXEC="/usr/bin/$EXEC"; fi
+
+_JUNEST_CMD -- $EXEC "$@"
