@@ -40,8 +40,6 @@ _post_installation_processes() {
 	
 	cp -r AppDir/.junest/usr/lib/mangohud/lib* AppDir/.junest/usr/lib/mangohud/lib64/ 2>/dev/null || true
 	cp -r AppDir/.junest/usr/lib32/mangohud/lib* AppDir/.junest/usr/lib32/mangohud/lib32/ 2>/dev/null || true
-	cp -f AppRun2 ./AppDir/
-	mv ./AppDir/AppRun2 ./AppDir/AppRun
 	cd AppDir/.junest/usr/share/vulkan/icd.d/ && ls | xargs -I {} sh -c 'ln -rs "{}" "$(echo {} | sed "s/\.json$/\.x86_64\.json/")"'
 	cd ${GITHUB_WORKSPACE}
 }
@@ -118,6 +116,8 @@ if ! echo "$EXEC" | grep -q "/usr/bin"; then EXEC="/usr/bin/$EXEC"; fi
 _JUNEST_CMD -- $EXEC "$@"
 
 HEREDOC
+cp -f AppRun2 ./AppDir/
+mv ./AppDir/AppRun2 ./AppDir/AppRun
 chmod a+x AppDir/AppRun
 
 ##########################################################################################################################################################
