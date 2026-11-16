@@ -17,6 +17,9 @@ fi
 NVIDIA_BINDINGS=""
 CONTAINER_ENV=""
 
+# --------------------------------------------------
+# Configuração NVIDIA (Drivers Proprietários)
+# --------------------------------------------------
 if [ -f /sys/module/nvidia/version ] && [ "$NVIDIA_ON" = 1 ]; then
     nvidia_driver_version="$(cat /sys/module/nvidia/version)"
     JUNEST_NV_BASE="${CACHEDIR}/junest_nvidia"
@@ -56,7 +59,6 @@ if [ -f /sys/module/nvidia/version ] && [ "$NVIDIA_ON" = 1 ]; then
             done
         done
 
-        # Cria todos os symlinks SONAME locais (.so.0, .so.1, .so)
         for dir in "${JUNEST_LIBS_64}" "${JUNEST_LIBS_32}"; do
             for f in "${dir}"/*.so."${nvidia_driver_version}"; do
                 [ ! -f "$f" ] && continue
@@ -67,7 +69,6 @@ if [ -f /sys/module/nvidia/version ] && [ "$NVIDIA_ON" = 1 ]; then
             done
         done
 
-        # Gera nvidia_icd.json apontando para /tmp/junest_nv/lib64/libGLX_nvidia.so.0
         cat << 'EOF' > "${JUNEST_VULKAN_DIR}/nvidia_icd.json"
 {
     "file_format_version" : "1.0.0",
@@ -79,37 +80,95 @@ if [ -f /sys/module/nvidia/version ] && [ "$NVIDIA_ON" = 1 ]; then
 EOF
     fi
 
-    # Monta dentro de /tmp/junest_nv (sempre gravável, não toca no SquashFS read-only do AppImage)
     if [ "$PROOT_ON" = 1 ]; then
         NVIDIA_BINDINGS="--bind=${JUNEST_LIBS_64}=/tmp/junest_nv/lib64 --bind=${JUNEST_LIBS_32}=/tmp/junest_nv/lib32 --bind=${JUNEST_VULKAN_DIR}=/tmp/junest_nv/icd"
     else
         NVIDIA_BINDINGS="--ro-bind ${JUNEST_LIBS_64} /tmp/junest_nv/lib64 --ro-bind ${JUNEST_LIBS_32} /tmp/junest_nv/lib32 --ro-bind ${JUNEST_VULKAN_DIR} /tmp/junest_nv/icd"
     fi
 
-    CONTAINER_ENV="env LD_LIBRARY_PATH=/tmp/junest_nv/lib64:/tmp/junest_nv/lib32:${LD_LIBRARY_PATH} VK_ICD_FILENAMES=/tmp/junest_nv/icd/nvidia_icd.json VK_DRIVER_FILES=/tmp/junest_nv/icd/nvidia_icd.json"
+    CONTAINER_ENV="env LD_LIBRARY_PATH=/tmp/junest_nv/lib64:/tmp/junest_nv/lib32${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH} VK_ICD_FILENAMES=/tmp/junest_nv/icd/nvidia_icd.json VK_DRIVER_FILES=/tmp/junest_nv/icd/nvidia_icd.json"
+else
+    # --------------------------------------------------
+    # Configuração AMD / Intel (Mesa / RADV)
+    # --------------------------------------------------
+    unset VK_ICD_FILENAMES VK_DRIVER_FILES __EGL_VENDOR_LIBRARY_DIRS LIBGL_DRIVERS_PATH
+
+    if [ -f "$JUNEST_HOME/usr/share/vulkan/icd.d/radeon_icd.x86_64.json" ]; then
+        AMD_ICDS="$JUNEST_HOME/usr/share/vulkan/icd.d/radeon_icd.x86_64.json"
+        [ -f "$JUNEST_HOME/usr/share/vulkan/icd.d/radeon_icd.i686.json" ] && AMD_ICDS="$AMD_ICDS:$JUNEST_HOME/usr/share/vulkan/icd.d/radeon_icd.i686.json"
+        CONTAINER_ICDS=$(echo "$AMD_ICDS" | sed "s|$JUNEST_HOME||g")
+        CONTAINER_ENV="env VK_ICD_FILENAMES=$CONTAINER_ICDS VK_DRIVER_FILES=$CONTAINER_ICDS"
+    fi
 fi
 
-bind_nvidia_data_dirs="/usr/share/egl /usr/share/glvnd /usr/share/nvidia"
+# Só monta pastas de dados da NVIDIA se a NVIDIA estiver ativa
+bind_nvidia_data_dirs=""
+if [ -f /sys/module/nvidia/version ] && [ "$NVIDIA_ON" = 1 ]; then
+    bind_nvidia_data_dirs="/usr/share/egl /usr/share/glvnd /usr/share/nvidia"
+fi
+
 bind_files="/etc/resolv.conf /etc/hosts /etc/nsswitch.conf /etc/passwd /etc/group /etc/machine-id /etc/asound.conf /etc/localtime"
 bind_dirs="/usr/share/Kvantum /media /mnt /opt /run/media /usr/lib/locale /usr/share/fonts /usr/share/themes /var $bind_nvidia_data_dirs"
+BINDINGS=""
 
 if [ "$PROOT_ON" = 1 ]; then
-    for f in $bind_files; do [ -f "$f" ] && BINDINGS="$BINDINGS --bind=$f"; done
-    for d in $bind_dirs; do [ -d "$d" ] && BINDINGS="$BINDINGS --bind=$d"; done
+    # --------------------------------------------------
+    # PROOT
+    # --------------------------------------------------
+    for f in $bind_files; do
+        [ -f "$f" ] && BINDINGS="$BINDINGS --bind=$f"
+    done
+
+    for d in $bind_dirs; do
+        [ -d "$d" ] && BINDINGS="$BINDINGS --bind=$d"
+    done
+
+    RUNTIME_BIND=""
+    [ -n "$XDG_RUNTIME_DIR" ] && [ -d "$XDG_RUNTIME_DIR" ] && RUNTIME_BIND="--bind=$XDG_RUNTIME_DIR"
+
     junest_options="proot -n -b"
-    junest_bindings="--bind=/dev --bind=/sys --bind=/tmp --bind=/proc $BINDINGS $NVIDIA_BINDINGS --bind=/home --bind=/home/$USER"
+    junest_bindings="--bind=/dev --bind=/sys --bind=/tmp --bind=/proc $BINDINGS $RUNTIME_BIND $NVIDIA_BINDINGS --bind=/home --bind=/home/$USER"
 else
-    for f in $bind_files; do [ -f "$f" ] && BINDINGS="$BINDINGS --ro-bind-try $f $f"; done
-    for d in $bind_dirs; do [ -d "$d" ] && BINDINGS="$BINDINGS --bind-try $d $d"; done
+    # --------------------------------------------------
+    # Bubblewrap
+    # --------------------------------------------------
+    for f in $bind_files; do
+        [ -f "$f" ] && BINDINGS="$BINDINGS --ro-bind-try $f $f"
+    done
+
+    for d in $bind_dirs; do
+        [ -d "$d" ] && BINDINGS="$BINDINGS --bind-try $d $d"
+    done
+
+    GPU_BIND=""
+    [ -d "/dev/dri" ] && GPU_BIND="$GPU_BIND --dev-bind /dev/dri /dev/dri"
+
+    SOCKET_BIND=""
+
+    # 1. Cria /tmp/.X11-unix via --tmpfs (gravável e pertencente ao usuário atual)
+    # e monta apenas o socket do DISPLAY ativo do host, se existir
+    SOCKET_BIND="$SOCKET_BIND --tmpfs /tmp/.X11-unix"
+    if [ -n "$DISPLAY" ]; then
+        X_NUM=$(echo "$DISPLAY" | sed 's/^://; s/\..*//')
+        if [ -S "/tmp/.X11-unix/X${X_NUM}" ]; then
+            SOCKET_BIND="$SOCKET_BIND --ro-bind /tmp/.X11-unix/X${X_NUM} /tmp/.X11-unix/X${X_NUM}"
+        fi
+    fi
+
+    # 2. Bind direto do socket nativo do Wayland
+    if [ -n "$WAYLAND_DISPLAY" ] && [ -n "$XDG_RUNTIME_DIR" ] && [ -S "$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY" ]; then
+        SOCKET_BIND="$SOCKET_BIND --ro-bind $XDG_RUNTIME_DIR/$WAYLAND_DISPLAY $XDG_RUNTIME_DIR/$WAYLAND_DISPLAY"
+    fi
+
     junest_options="-n -b"
-    junest_bindings="--dev-bind /dev /dev --ro-bind /sys /sys --bind-try /tmp /tmp --proc /proc $BINDINGS $NVIDIA_BINDINGS --cap-add CAP_SYS_ADMIN"
+    junest_bindings="--dev /dev --ro-bind /sys /sys --tmpfs /tmp --proc /proc $GPU_BIND $BINDINGS $SOCKET_BIND $NVIDIA_BINDINGS --cap-add CAP_SYS_ADMIN"
 fi
 
 _JUNEST_CMD() {
     "$HERE"/.local/share/junest/bin/junest $junest_options "$junest_bindings" "$@"
 }
 
-EXEC=$(grep -e '^Exec=.*' "${HERE}"/*.desktop | head -n 1 | cut -d "=" -f 2- | sed -e 's|%.||g')
-if ! echo "$EXEC" | grep -q "/usr/bin"; then EXEC="/usr/bin/$EXEC"; fi
+EXEC=$(grep -m 1 -e '^Exec=.*' "${HERE}"/*.desktop | cut -d "=" -f 2- | sed -e 's|%.||g')
+if ! echo "$EXEC" | grep -q "^/"; then EXEC="/usr/bin/$EXEC"; fi
 
 _JUNEST_CMD -- $CONTAINER_ENV $EXEC "$@"
